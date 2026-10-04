@@ -1,0 +1,22 @@
+{
+  "name": "wmkeza",
+  "description": "wmkeza's Claude Code plugins: everyday skills and a status-line mod.",
+  "owner": {
+    "name": "wmkeza"
+  },
+  "plugins": [
+    {
+      "name": "wmkeza",
+      "source": "./plugins/wmkeza",
+      "category": "skills",
+      "description": "Skills for handing a session off to a new one and for researching unfamiliar tech."
+    },
+    {
+      "name": "usage-line",
+      "source": "./mods/usage-line",
+      "category": "mod",
+      "tags": ["mod", "statusline"],
+      "description": "Mod: shows 5h / weekly rate-limit usage and context fill on the status line."
+    }
+  ]
+}

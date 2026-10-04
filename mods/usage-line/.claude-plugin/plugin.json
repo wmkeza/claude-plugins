@@ -1,0 +1,7 @@
+{
+  "name": "usage-line",
+  "version": "0.4.0",
+  "description": "Mod: show 5h / weekly rate-limit usage and context fill on the status line.",
+  "author": { "name": "wmkeza" },
+  "keywords": ["mod", "statusline"]
+}
