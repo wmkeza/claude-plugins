@@ -37,16 +37,3 @@ claude plugin install tech-research@wmkeza || true
 ```
 
 セットアップスクリプトは Claude Code の起動前に走るので、入れたプラグインはそのセッションから使える。結果は環境のキャッシュに残り、約 7 日ごとか、スクリプトを書き換えたときに作り直される。push した変更をすぐ反映したいときは、スクリプトを書き換える。
-
-## 旧構成からの移行
-
-以前は skill をまとめた `wmkeza@wmkeza` だった。入れている端末では入れ直す（`usage-line@wmkeza` は ID が変わらないので、そのままで設定も残る）。
-
-```
-claude plugin marketplace update wmkeza
-claude plugin uninstall wmkeza@wmkeza
-claude plugin install handoff@wmkeza
-claude plugin install tech-research@wmkeza
-```
-
-`handoff-quick` と `handoff-structured` は `handoff` 1 つにまとめた。クラウド環境のセットアップスクリプトも上の形に書き換える。
