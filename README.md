@@ -4,10 +4,13 @@ wmkeza の Claude Code プラグイン集（marketplace 名は `wmkeza`）。
 
 | プラグイン | 種類 | 中身 |
 |---|---|---|
-| [`wmkeza`](plugins/wmkeza) | skill | `handoff-quick`、`handoff-structured`（新しいセッションへの引き継ぎプロンプト）、`tech-research`（技術の調べもの） |
+| [`handoff`](plugins/handoff) | skill | `handoff`（新しいセッションへの引き継ぎプロンプト。短い形と項目つきの形を、頼み方と会話の中身で選ぶ） |
+| [`tech-research`](plugins/tech-research) | skill | `tech-research`（技術の調べもの） |
 | [`usage-line`](mods/usage-line) | mod | ステータス行に 5h / 週の使用率とコンテキスト使用率を出す |
 
-skill は `plugins/`、mod は `mods/` に置く。
+skill は `plugins/`、mod は `mods/` に置く。1 プラグイン = 1 用途で、プラグイン名は用途名にする。skill を足すときは、既存の用途に合えばそのプラグインに入れ、合わなければプラグインを新しく作る。
+
+プラグインの skill は `/プラグイン名:skill名`（例：`/handoff:handoff`）で一覧に出るが、ほかのコマンドと名前がかぶらなければ `/handoff` だけで呼べる。
 
 ## インストール
 
@@ -15,7 +18,8 @@ skill は `plugins/`、mod は `mods/` に置く。
 
 ```
 /plugin marketplace add wmkeza/claude-plugins
-/plugin install wmkeza@wmkeza
+/plugin install handoff@wmkeza
+/plugin install tech-research@wmkeza
 /plugin install usage-line@wmkeza
 ```
 
@@ -28,7 +32,21 @@ claude.ai の Customize > Plugins で marketplace として追加すると、チ
 ```bash
 #!/bin/bash
 claude plugin marketplace add wmkeza/claude-plugins || true
-claude plugin install wmkeza@wmkeza || true
+claude plugin install handoff@wmkeza || true
+claude plugin install tech-research@wmkeza || true
 ```
 
 セットアップスクリプトは Claude Code の起動前に走るので、入れたプラグインはそのセッションから使える。結果は環境のキャッシュに残り、約 7 日ごとか、スクリプトを書き換えたときに作り直される。push した変更をすぐ反映したいときは、スクリプトを書き換える。
+
+## 旧構成からの移行
+
+以前は skill をまとめた `wmkeza@wmkeza` だった。入れている端末では入れ直す（`usage-line@wmkeza` は ID が変わらないので、そのままで設定も残る）。
+
+```
+claude plugin marketplace update wmkeza
+claude plugin uninstall wmkeza@wmkeza
+claude plugin install handoff@wmkeza
+claude plugin install tech-research@wmkeza
+```
+
+`handoff-quick` と `handoff-structured` は `handoff` 1 つにまとめた。クラウド環境のセットアップスクリプトも上の形に書き換える。

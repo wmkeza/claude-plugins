@@ -1,0 +1,7 @@
+{
+  "name": "handoff",
+  "description": "Write a ready-to-paste prompt for continuing the current session in a new one.",
+  "author": {
+    "name": "wmkeza"
+  }
+}
