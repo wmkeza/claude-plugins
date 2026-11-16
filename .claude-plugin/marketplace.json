@@ -6,10 +6,16 @@
   },
   "plugins": [
     {
-      "name": "wmkeza",
-      "source": "./plugins/wmkeza",
+      "name": "handoff",
+      "source": "./plugins/handoff",
       "category": "skills",
-      "description": "Skills for handing a session off to a new one and for researching unfamiliar tech."
+      "description": "Write a ready-to-paste prompt for continuing the current session in a new one."
+    },
+    {
+      "name": "tech-research",
+      "source": "./plugins/tech-research",
+      "category": "skills",
+      "description": "Research unfamiliar tools, services, and features against current primary sources and summarize in Japanese."
     },
     {
       "name": "usage-line",
