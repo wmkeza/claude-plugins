@@ -1,6 +1,6 @@
 {
   "name": "wmkeza",
-  "description": "wmkeza's Claude Code plugins: everyday skills and a status-line mod.",
+  "description": "wmkeza's Claude Code plugins: everyday skills, a status-line mod and a milestone pane mod.",
   "owner": {
     "name": "wmkeza"
   },
@@ -17,6 +17,13 @@
       "category": "mod",
       "tags": ["mod", "statusline"],
       "description": "Mod: shows 5h / weekly rate-limit usage and context fill on the status line."
+    },
+    {
+      "name": "milestone-pane",
+      "source": "./mods/milestone-pane",
+      "category": "mod",
+      "tags": ["mod", "pane", "milestone"],
+      "description": "Mod + /milestone skill: track work as a Milestone / Task / Step checklist in milestone.md and show it in a Milestone pane."
     }
   ]
 }

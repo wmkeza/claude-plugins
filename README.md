@@ -6,8 +6,9 @@ wmkeza の Claude Code プラグイン集（marketplace 名は `wmkeza`）。
 |---|---|---|
 | [`wmkeza`](plugins/wmkeza) | skill | `handoff-quick`、`handoff-structured`（新しいセッションへの引き継ぎプロンプト）、`tech-research`（技術の調べもの） |
 | [`usage-line`](mods/usage-line) | mod | ステータス行に 5h / 週の使用率とコンテキスト使用率を出す |
+| [`milestone-pane`](mods/milestone-pane) | mod + skill | `milestone.md` の Milestone / Task / Step のチェックリストを Milestone ペインに出す。`/milestone` で作る |
 
-skill は `plugins/`、mod は `mods/` に置く。
+skill は `plugins/`、mod は `mods/` に置く。mod と組で使う skill は、その mod のフォルダの `skills/` に入れる。
 
 ## インストール
 
@@ -17,6 +18,7 @@ skill は `plugins/`、mod は `mods/` に置く。
 /plugin marketplace add wmkeza/claude-plugins
 /plugin install wmkeza@wmkeza
 /plugin install usage-line@wmkeza
+/plugin install milestone-pane@wmkeza
 ```
 
 claude.ai の Customize > Plugins で marketplace として追加すると、チャットとローカルの Claude Code にも同期される。

@@ -1,0 +1,8 @@
+{
+  "name": "milestone-pane",
+  "version": "0.1.0",
+  "description": "Mod: keep milestone.md (Milestone / Task / Step checklist) in the session folder and show it in a Milestone pane.",
+  "author": { "name": "wmkeza" },
+  "keywords": ["mod", "pane", "milestone"],
+  "types": "./types/index.d.ts"
+}
