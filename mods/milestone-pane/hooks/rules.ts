@@ -20,7 +20,7 @@ milestone.md（${file}）に作業の状態を書く。Milestone ペインに表
   - Milestone を終えたとき。終えた Milestone を 1 行に戻し、次の Milestone に Task と Step があれば書く
 - milestone.md はコミットしない
 
-書き方の例（Milestone 2 の Task 2 の 1 番目の Step を進めているところ）:
+書き方の例（Milestone 2 の Task 2 の 1 番目の Step を進めているところ）
 
 \`\`\`
 - [x] Milestone 1: 要件を決める
