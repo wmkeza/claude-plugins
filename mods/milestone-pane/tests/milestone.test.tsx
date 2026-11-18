@@ -1,0 +1,110 @@
+import type { On } from 'claude-code'
+import { expect, test } from 'claude-code/testing'
+import type { Engine } from 'claude-code/testing'
+
+// The test runtime has it; the hooks module's lib does not declare it
+declare function setTimeout(fn: () => void, ms: number): unknown
+
+const CWD = 'C:/work/repo'
+const FILE = `${CWD}/milestone.md`
+const BODY = '- [x] Milestone 1: 要件を決める\n- [ ] **Milestone 2: 画面を作る**\n  - [ ] ▶ **Task 1: 一覧画面**\n'
+
+const PANE = {
+  plugin: 'milestone-pane',
+  component: 'Pane',
+  requestId: 'milestone',
+  props: {
+    title: 'Milestone',
+    isFocused: false,
+    bodyColumns: 40,
+    placement: 'dock',
+    scroll: { offset: 0, bodyRows: 20 },
+    view: {},
+  },
+} as const
+
+const COMPOSE = { model: 'm', promptModel: 'm', surfaces: ['desktop'], tools: [], outputStyle: null, traits: [] } as const
+
+const BASE = [{ id: 'intro', text: 'intro', scope: 'shared' }] as const
+
+const slash = (p: string) => p.replace(/\\/g, '/')
+
+// A file system holding `files`; returns the panes opened
+const engine = (on: On, files: Map<string, string>) => {
+  const opened: string[] = []
+  on('session.root', () => ({ value: CWD }))
+  on('session.cwd', () => ({ value: CWD }))
+  on('clock.every', () => ({ value: undefined }))
+  on('fs.read', (_, e) => {
+    const t = files.get(slash(e.path))
+    if (t === undefined) throw new Error('ENOENT')
+
+    return { value: t }
+  })
+  on('fs.exists', (_, e) => ({ value: files.has(slash(e.path)) }))
+  on('ui.open', (_, e) => {
+    opened.push(e.id)
+
+    return { value: { isPlaced: true } }
+  })
+  on('session.start', (_, e) => ({ cwd: e.cwd }))
+  on('prompt.compose', () => ({ sections: BASE }))
+  on('skill.prompt', (_, e) => ({ text: e.text }))
+  on('tool.call', () => ({ result: {} }))
+
+  return opened
+}
+
+// session.start opens the pane without waiting for it: let that open land
+const start = async ($: Engine) => {
+  await $.session.start({ cwd: CWD, surface: 'desktop', isInteractive: true })
+  await new Promise<void>(r => setTimeout(r, 0))
+}
+
+test('with milestone.md: the pane opens, draws each level indented, and the rules are added', async ($, on) => {
+  const opened = engine(on, new Map([[FILE, BODY]]))
+  await start($)
+  expect(opened).toEqual(['milestone'])
+
+  const { sections } = await $.prompt.compose(COMPOSE)
+  const rules = sections.find(s => s.id === 'milestone-pane:rules')
+  expect(rules?.scope).toBe('session')
+  expect(rules?.text).toContain('Milestone ペインに表示される')
+
+  for (const surface of ['terminal', 'desktop', 'vscode', 'mobile'] as const) {
+    const ui = await $.ui.mount({ ...PANE, surface })
+    const boxes = await ui.findAll({ type: 'Box' })
+    const pads = boxes.map(b => b.props.paddingLeft).filter(p => p !== undefined)
+    expect(pads).toEqual([0, 0, 4])
+    await ui.unmount()
+  }
+})
+
+test('without milestone.md: no pane, no rules', async ($, on) => {
+  const opened = engine(on, new Map())
+  await start($)
+  expect(opened).toEqual([])
+
+  const { sections } = await $.prompt.compose(COMPOSE)
+  expect(sections.map(s => s.id)).toEqual(['intro'])
+})
+
+test('/milestone, then Claude writes milestone.md: the pane opens and redraws at once', async ($, on) => {
+  const files = new Map<string, string>()
+  const opened = engine(on, files)
+  await start($)
+  await $.skill.prompt({ skill: 'milestone-pane:milestone', text: 'x', frontmatter: {}, source: 'plugin' })
+  expect(opened).toEqual([])
+
+  files.set(FILE, BODY)
+  await $.tool.call({ tool: 'Write', file_path: 'C:\\work\\repo\\milestone.md', content: BODY })
+  expect(opened).toEqual(['milestone'])
+
+  files.set(FILE, '- [x] Milestone 1: 要件を決める\n')
+  await $.tool.call({ tool: 'Edit', file_path: 'milestone.md', old_string: 'a', new_string: 'b' })
+  expect(opened).toEqual(['milestone'])
+  const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+  const md = await ui.findAll({ type: 'Markdown' })
+  expect(md.map(m => m.props.text)).toEqual(['- [x] Milestone 1: 要件を決める'])
+  await ui.unmount()
+})
