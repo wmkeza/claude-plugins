@@ -106,9 +106,11 @@ export const register: Register = on => {
     const { Box, Markdown } = $.ui.resolve(e)
 
     return (
-      // Each list line in its own Box, indented by its nesting, so the levels show on every surface
+      // Each list line in its own Box, indented by its nesting, so the levels show on every surface.
+      // Split on any line break: with CRLF a trailing \r would keep a line from matching as a
+      // list item, and a Step line's 4-space indent would then draw as a code block
       <Box flexDirection="column" rowGap="sm">
-        {(await read($, text)).split('\n').filter(l => l.trim() !== '').map((line, i) => {
+        {(await read($, text)).split(/\r\n?|\n/).filter(l => l.trim() !== '').map((line, i) => {
           const m = /^(\s*)- (.*)$/.exec(line)
           const level = m ? Math.floor((m[1] ?? '').length / 2) : 0
 

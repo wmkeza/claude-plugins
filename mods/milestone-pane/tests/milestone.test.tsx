@@ -108,3 +108,24 @@ test('/milestone, then Claude writes milestone.md: the pane opens and redraws at
   expect(md.map(m => m.props.text)).toEqual(['- [x] Milestone 1: 要件を決める'])
   await ui.unmount()
 })
+
+test('CRLF or LF milestone.md: Step lines draw as list items, not code', async ($, on) => {
+  const lines = [
+    '- [ ] **Milestone 2: 画面を作る**',
+    '  - [ ] **Task 2: 詳細画面**',
+    '    - [ ] ▶ **Step 2-1: 項目を並べる**',
+    '    - [ ] Step 2-2: 保存ボタンを付ける',
+  ]
+  const files = new Map<string, string>()
+  engine(on, files)
+  for (const eol of ['\r\n', '\n']) {
+    files.set(FILE, lines.join(eol) + eol)
+    await start($)
+    const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+    const boxes = await ui.findAll({ type: 'Box' })
+    expect(boxes.map(b => b.props.paddingLeft).filter(p => p !== undefined)).toEqual([0, 4, 8, 8])
+    const md = await ui.findAll({ type: 'Markdown' })
+    expect(md.map(m => m.props.text)).toEqual(lines.map(l => l.trimStart()))
+    await ui.unmount()
+  }
+})
