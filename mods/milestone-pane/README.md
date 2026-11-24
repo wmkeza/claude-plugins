@@ -21,6 +21,7 @@ Claude Code の mod（関数フックのプラグイン）とスキル `/milesto
   - 30 秒ごと（人の手や別のセッションで書き換えたときのため）
 - `milestone.md` があるセッションでは、書き方と更新のしかたのルールを Claude への指示（システムプロンプト）に足す。ルールは [hooks/rules.ts](hooks/rules.ts) の 1 か所だけにある。各リポジトリの CLAUDE.md には何も書かない
 - リストの各行は字下げの深さ（半角スペース 2 つで 1 段）に合わせて、字下げした Box に入れて描く。terminal、desktop、mobile のどれでも段が見える
+- 1 つの Milestone に Task が 2 つ以上あるとき、済んだ Task（`[x]`）の下の Step は描かない。`milestone.md` の中身は変えない
 
 ## /milestone
 

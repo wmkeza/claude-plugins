@@ -129,3 +129,47 @@ test('CRLF or LF milestone.md: Step lines draw as list items, not code', async (
     await ui.unmount()
   }
 })
+
+test('a Milestone with two or more Tasks: Steps under a finished Task are not drawn', async ($, on) => {
+  const files = new Map<string, string>()
+  engine(on, files)
+  files.set(FILE, [
+    '- [x] Milestone 1: 要件を決める',
+    '- [ ] **Milestone 2: 画面を作る**',
+    '  - [x] Task 1: 一覧画面',
+    '    - [x] Step 1-1: 表を置く',
+    '    - [x] Step 1-2: 並べ替えを付ける',
+    '  - [ ] **Task 2: 詳細画面**',
+    '    - [x] Step 2-1: 項目を並べる',
+    '    - [ ] ▶ **Step 2-2: 保存ボタンを付ける**',
+    '- [ ] Milestone 3: 公開する',
+  ].join('\r\n'))
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+  const md = await ui.findAll({ type: 'Markdown' })
+  expect(md.map(m => m.props.text)).toEqual([
+    '- [x] Milestone 1: 要件を決める',
+    '- [ ] **Milestone 2: 画面を作る**',
+    '- [x] Task 1: 一覧画面',
+    '- [ ] **Task 2: 詳細画面**',
+    '- [x] Step 2-1: 項目を並べる',
+    '- [ ] ▶ **Step 2-2: 保存ボタンを付ける**',
+    '- [ ] Milestone 3: 公開する',
+  ])
+  await ui.unmount()
+})
+
+test('a Milestone with one Task: its Steps stay even when the Task is finished', async ($, on) => {
+  const lines = [
+    '- [ ] **Milestone 1: 画面を作る**',
+    '  - [x] Task 1: 一覧画面',
+    '    - [x] Step 1-1: 表を置く',
+  ]
+  const files = new Map<string, string>([[FILE, lines.join('\n')]])
+  engine(on, files)
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+  const md = await ui.findAll({ type: 'Markdown' })
+  expect(md.map(m => m.props.text)).toEqual(lines.map(l => l.trimStart()))
+  await ui.unmount()
+})
