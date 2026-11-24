@@ -40,6 +40,45 @@ async function refresh($: EngineInterface): Promise<boolean> {
   return has
 }
 
+// A list line's nesting level (2 spaces per level), or undefined for a line that is not a list item
+const levelOf = (line: string) => {
+  const m = /^(\s*)- /.exec(line)
+
+  return m ? Math.floor((m[1] ?? '').length / 2) : undefined
+}
+
+// Drops the Step lines (level 2) under a finished Task (level 1, `[x]`) when its Milestone has
+// two or more Tasks, so the Steps still to do stand out
+function visibleLines(lines: readonly string[]): string[] {
+  // Count each Milestone's Tasks first: a finished Task may come before the Milestone's second Task
+  const taskCounts: number[] = []
+  for (const line of lines) {
+    const level = levelOf(line)
+    if (level === 0) {
+      taskCounts.push(0)
+    } else if (level === 1 && taskCounts.length > 0) {
+      taskCounts[taskCounts.length - 1] = (taskCounts[taskCounts.length - 1] ?? 0) + 1
+    }
+  }
+  const shown: string[] = []
+  let milestone = -1
+  let isHiding = false
+  for (const line of lines) {
+    const level = levelOf(line)
+    if (level === 0) {
+      milestone += 1
+      isHiding = false
+    } else if (level === 1) {
+      isHiding = (taskCounts[milestone] ?? 0) >= 2 && /^\s*- \[[xX]\]/.test(line)
+    } else if (level !== undefined && level >= 2 && isHiding) {
+      continue
+    }
+    shown.push(line)
+  }
+
+  return shown
+}
+
 async function open($: EngineInterface): Promise<void> {
   await $.ui.open({ id: PANE, title: TITLE })
 }
@@ -110,7 +149,7 @@ export const register: Register = on => {
       // Split on any line break: with CRLF a trailing \r would keep a line from matching as a
       // list item, and a Step line's 4-space indent would then draw as a code block
       <Box flexDirection="column" rowGap="sm">
-        {(await read($, text)).split(/\r\n?|\n/).filter(l => l.trim() !== '').map((line, i) => {
+        {visibleLines((await read($, text)).split(/\r\n?|\n/).filter(l => l.trim() !== '')).map((line, i) => {
           const m = /^(\s*)- (.*)$/.exec(line)
           const level = m ? Math.floor((m[1] ?? '').length / 2) : 0
 
